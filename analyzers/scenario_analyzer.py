@@ -14,7 +14,7 @@ class LearningScenarioAnalyzer:
         self.unknown_learner_experience = set()
 
         self.allowed_bloom_levels = set(k.lower() for k in self.bloom_levels.keys())
-        self.allowed_learner_experience = set(k.lower() for k in self.learner_experience.keys())
+        self.allowed_learner_experience = {"beginner", "advanced"}
         self.allowed_educator_experience = {"junior", "intermediate", "senior"}
         self.allowed_education_context = {"school", "vocational", "vet", "university"}
         self.allowed_dimensions = {"small", "medium", "large"}
@@ -40,8 +40,9 @@ class LearningScenarioAnalyzer:
             exp = "beginner"
         if exp in self.allowed_learner_experience:
             return exp.capitalize()
-        if exp:
+        elif exp:
             self.unknown_learner_experience.add(exp)
+            return "Intermediate"
         return None
 
     def normalize_educator_experience(self, experience):
@@ -57,7 +58,13 @@ class LearningScenarioAnalyzer:
         return level.capitalize() if level in self.allowed_bloom_levels else None
 
     def is_simple_verb(self, word):
-        return word and len(word) > 2 and " " not in word
+        # A basic filter: exclude non-verbs based on invalid patterns
+        return (
+            word
+            and len(word) > 2
+            and " " not in word
+            and word.lower() != "strinsssssng"
+        )
 
     def extract_data(self):
         for doc in self.data:
@@ -93,7 +100,7 @@ class LearningScenarioAnalyzer:
         self.extract_data()
 
         if self.unknown_learner_experience:
-            print("⚠️ Unknown learner experience values found in the dataset:")
+            print("⚠️ Fallback to 'Intermediate' for unknown learner experience values:")
             for val in sorted(self.unknown_learner_experience):
                 print(" -", val)
 
