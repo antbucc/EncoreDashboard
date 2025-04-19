@@ -14,7 +14,7 @@ class LearningScenarioAnalyzer:
 
         self.allowed_learner_experience = {"Beginner", "Intermediate", "Advanced"}
         self.allowed_educator_experience = {"Junior", "Intermediate", "Senior"}
-        self.allowed_education_context = {"School", "VET", "University"}
+        self.allowed_education_context = {"School", "Vocational", "University"}
 
     def normalize_text(self, text):
         if not text or not isinstance(text, str):
