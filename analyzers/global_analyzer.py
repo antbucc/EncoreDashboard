@@ -20,7 +20,7 @@ class GlobalAnalyzer:
             for lesson in lessons:
                 content = lesson.get("Content", {})
                 oers = content.get("OERs", [])
-                summary["Total OERs in Learning Paths (content.OERs)"] += len(oers)
+                summary["Total OERs in Learning Paths"] += len(oers)
 
         return summary
 
