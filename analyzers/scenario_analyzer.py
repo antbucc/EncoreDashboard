@@ -11,9 +11,10 @@ class LearningScenarioAnalyzer:
         self.dimension = {}
         self.learner_experience = {}
 
+        self.allowed_bloom_levels = {"remember", "understand", "apply", "analyze", "evaluate", "create"}
         self.allowed_learner_experience = {"beginner", "intermediate", "advanced"}
         self.allowed_educator_experience = {"junior", "intermediate", "senior"}
-        self.allowed_education_context = {"school", "vocational", "university"}
+        self.allowed_education_context = {"school", "vocational", "vet", "university"}
         self.allowed_dimensions = {"small", "medium", "large"}
 
     def normalize_text(self, text):
@@ -25,13 +26,15 @@ class LearningScenarioAnalyzer:
 
     def normalize_education_context(self, context):
         context = self.normalize_text(context)
+        if context in {"vet", "vocational"}:
+            return "Vocational"
         if context in self.allowed_education_context:
             return context.capitalize()
         return "University" if context else None
 
     def normalize_learner_experience(self, experience):
         exp = self.normalize_text(experience)
-        if exp == "line":  # Fix for a known bad value
+        if exp == "line":
             exp = "beginner"
         return exp.capitalize() if exp in self.allowed_learner_experience else None
 
@@ -43,11 +46,14 @@ class LearningScenarioAnalyzer:
         dim = self.normalize_text(dim)
         return dim.capitalize() if dim in self.allowed_dimensions else None
 
+    def normalize_bloom_level(self, level):
+        level = self.normalize_text(level)
+        return level.capitalize() if level in self.allowed_bloom_levels else None
+
     def extract_data(self):
         for doc in self.data:
-            bloom = self.normalize_text(doc.get("Objective", {}).get("BloomLevel", {}).get("name"))
+            bloom = self.normalize_bloom_level(doc.get("Objective", {}).get("BloomLevel", {}).get("name"))
             if bloom:
-                bloom = bloom.capitalize()
                 self.bloom_levels[bloom] = self.bloom_levels.get(bloom, 0) + 1
 
             for verb in doc.get("Objective", {}).get("BloomLevel", {}).get("verbs", []):
