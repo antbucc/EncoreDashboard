@@ -1,3 +1,4 @@
+
 import matplotlib.pyplot as plt
 import re
 
@@ -10,6 +11,7 @@ class LearningScenarioAnalyzer:
         self.education_context = {}
         self.dimension = {}
         self.learner_experience = {}
+        self.unknown_learner_experience = set()
 
         self.allowed_bloom_levels = {"remember", "understand", "apply", "analyze", "evaluate", "create"}
         self.allowed_learner_experience = {"beginner", "intermediate", "advanced"}
@@ -36,7 +38,11 @@ class LearningScenarioAnalyzer:
         exp = self.normalize_text(experience)
         if exp == "line":
             exp = "beginner"
-        return exp.capitalize() if exp in self.allowed_learner_experience else None
+        if exp in self.allowed_learner_experience:
+            return exp.capitalize()
+        if exp:
+            self.unknown_learner_experience.add(exp)
+        return None
 
     def normalize_educator_experience(self, experience):
         exp = self.normalize_text(experience)
@@ -82,6 +88,12 @@ class LearningScenarioAnalyzer:
 
     def create_figure(self):
         self.extract_data()
+
+        if self.unknown_learner_experience:
+            print("⚠️ Unknown learner experience values found in the dataset:")
+            for val in sorted(self.unknown_learner_experience):
+                print(" -", val)
+
         fig, axes = plt.subplots(3, 2, figsize=(16, 14))
 
         def plot(ax, data, title):
