@@ -11,7 +11,7 @@ class GlobalAnalyzer:
             "Total Learning Scenarios": len(self.scenario_data),
             "Total Learning Paths": len(self.path_data),
             "Total Learning Activities": 0,
-            "Total OERs in Learning Paths (content.OERs)": 0
+            "Total OERs used in Learning Paths": 0
         }
 
         for path in self.path_data:
