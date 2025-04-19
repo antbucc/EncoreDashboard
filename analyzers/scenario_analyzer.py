@@ -23,7 +23,7 @@ class LearningScenarioAnalyzer:
         if not text or not isinstance(text, str):
             return None
         text = text.strip().lower()
-        text = re.sub(r'[^a-z ]+', '', text)
+        text = re.sub(r'[^a-z]+', '', text)
         return text if text else None
 
     def normalize_education_context(self, context):
@@ -57,13 +57,14 @@ class LearningScenarioAnalyzer:
         level = self.normalize_text(level)
         return level.capitalize() if level in self.allowed_bloom_levels else None
 
-    def is_simple_verb(self, word):
-        # A basic filter: exclude non-verbs based on invalid patterns
+    def is_valid_verb(self, word):
+        # Exclude non-verbs and junk patterns
+        common_non_verbs = {"strinsssssng", "example", "noun", "thing", "concept", "item"}
         return (
             word
+            and word not in common_non_verbs
             and len(word) > 2
-            and " " not in word
-            and word.lower() != "strinsssssng"
+            and word.isalpha()
         )
 
     def extract_data(self):
@@ -74,7 +75,7 @@ class LearningScenarioAnalyzer:
 
             for verb in doc.get("Objective", {}).get("BloomLevel", {}).get("verbs", []):
                 norm_verb = self.normalize_text(verb)
-                if norm_verb and self.is_simple_verb(norm_verb):
+                if norm_verb and self.is_valid_verb(norm_verb):
                     norm_verb = norm_verb.capitalize()
                     self.verbs[norm_verb] = self.verbs.get(norm_verb, 0) + 1
 
