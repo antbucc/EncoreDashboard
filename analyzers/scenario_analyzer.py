@@ -5,16 +5,16 @@ import re
 class LearningScenarioAnalyzer:
     def __init__(self, data):
         self.data = data
-        self.bloom_levels = {}
+        self.bloom_levels = {level: 0 for level in ["Remember", "Understand", "Apply", "Analyze", "Evaluate", "Create"]}
         self.verbs = {}
         self.educator_experience = {}
         self.education_context = {}
         self.dimension = {}
-        self.learner_experience = {}
+        self.learner_experience = {level: 0 for level in ["Beginner", "Intermediate", "Advanced"]}
         self.unknown_learner_experience = set()
 
-        self.allowed_bloom_levels = {"remember", "understand", "apply", "analyze", "evaluate", "create"}
-        self.allowed_learner_experience = {"beginner", "intermediate", "advanced"}
+        self.allowed_bloom_levels = set(k.lower() for k in self.bloom_levels.keys())
+        self.allowed_learner_experience = set(k.lower() for k in self.learner_experience.keys())
         self.allowed_educator_experience = {"junior", "intermediate", "senior"}
         self.allowed_education_context = {"school", "vocational", "vet", "university"}
         self.allowed_dimensions = {"small", "medium", "large"}
@@ -56,15 +56,18 @@ class LearningScenarioAnalyzer:
         level = self.normalize_text(level)
         return level.capitalize() if level in self.allowed_bloom_levels else None
 
+    def is_simple_verb(self, word):
+        return word and len(word) > 2 and " " not in word
+
     def extract_data(self):
         for doc in self.data:
             bloom = self.normalize_bloom_level(doc.get("Objective", {}).get("BloomLevel", {}).get("name"))
             if bloom:
-                self.bloom_levels[bloom] = self.bloom_levels.get(bloom, 0) + 1
+                self.bloom_levels[bloom] += 1
 
             for verb in doc.get("Objective", {}).get("BloomLevel", {}).get("verbs", []):
                 norm_verb = self.normalize_text(verb)
-                if norm_verb:
+                if norm_verb and self.is_simple_verb(norm_verb):
                     norm_verb = norm_verb.capitalize()
                     self.verbs[norm_verb] = self.verbs.get(norm_verb, 0) + 1
 
@@ -84,7 +87,7 @@ class LearningScenarioAnalyzer:
 
             learner_exp = self.normalize_learner_experience(context.get("LearnerExperience"))
             if learner_exp:
-                self.learner_experience[learner_exp] = self.learner_experience.get(learner_exp, 0) + 1
+                self.learner_experience[learner_exp] += 1
 
     def create_figure(self):
         self.extract_data()
@@ -97,7 +100,7 @@ class LearningScenarioAnalyzer:
         fig, axes = plt.subplots(3, 2, figsize=(16, 14))
 
         def plot(ax, data, title):
-            data = {k: v for k, v in data.items() if k}
+            data = {k: v for k, v in data.items() if v > 0}
             if not data:
                 ax.set_title(f"{title} (no data)")
                 ax.axis("off")
