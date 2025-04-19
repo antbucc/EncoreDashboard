@@ -58,8 +58,9 @@ class LearningScenarioAnalyzer:
         return level.capitalize() if level in self.allowed_bloom_levels else None
 
     def is_valid_verb(self, word):
-        # Exclude non-verbs and junk patterns
-        common_non_verbs = {"strinsssssng", "example", "noun", "thing", "concept", "item"}
+        common_non_verbs = {
+            "strinsssssng", "strisssssng", "strinsssing", "noun", "thing", "example", "concept", "item"
+        }
         return (
             word
             and word not in common_non_verbs
