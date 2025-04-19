@@ -1,4 +1,3 @@
-
 import matplotlib.pyplot as plt
 import re
 
@@ -12,42 +11,49 @@ class LearningScenarioAnalyzer:
         self.dimension = {}
         self.learner_experience = {}
 
-        self.allowed_learner_experience = {"Beginner", "Intermediate", "Advanced"}
-        self.allowed_educator_experience = {"Junior", "Intermediate", "Senior"}
-        self.allowed_education_context = {"School", "Vocational", "University"}
+        self.allowed_learner_experience = {"beginner", "intermediate", "advanced"}
+        self.allowed_educator_experience = {"junior", "intermediate", "senior"}
+        self.allowed_education_context = {"school", "vocational", "university"}
+        self.allowed_dimensions = {"small", "medium", "large"}
 
     def normalize_text(self, text):
         if not text or not isinstance(text, str):
             return None
-        text = text.strip().capitalize()
-        text = re.sub(r'[^a-zA-Z ]+', '', text)
+        text = text.strip().lower()
+        text = re.sub(r'[^a-z ]+', '', text)
         return text if text else None
 
     def normalize_education_context(self, context):
         context = self.normalize_text(context)
         if context in self.allowed_education_context:
-            return context
+            return context.capitalize()
         return "University" if context else None
 
     def normalize_learner_experience(self, experience):
         exp = self.normalize_text(experience)
-        if exp and exp.lower() == "line":
-            return "Beginner"
-        return exp if exp in self.allowed_learner_experience else None
+        if exp == "line":  # Fix for a known bad value
+            exp = "beginner"
+        return exp.capitalize() if exp in self.allowed_learner_experience else None
 
     def normalize_educator_experience(self, experience):
         exp = self.normalize_text(experience)
-        return exp if exp in self.allowed_educator_experience else None
+        return exp.capitalize() if exp in self.allowed_educator_experience else None
+
+    def normalize_dimension(self, dim):
+        dim = self.normalize_text(dim)
+        return dim.capitalize() if dim in self.allowed_dimensions else None
 
     def extract_data(self):
         for doc in self.data:
             bloom = self.normalize_text(doc.get("Objective", {}).get("BloomLevel", {}).get("name"))
             if bloom:
+                bloom = bloom.capitalize()
                 self.bloom_levels[bloom] = self.bloom_levels.get(bloom, 0) + 1
 
             for verb in doc.get("Objective", {}).get("BloomLevel", {}).get("verbs", []):
                 norm_verb = self.normalize_text(verb)
                 if norm_verb:
+                    norm_verb = norm_verb.capitalize()
                     self.verbs[norm_verb] = self.verbs.get(norm_verb, 0) + 1
 
             context = doc.get("Context", {})
@@ -60,7 +66,7 @@ class LearningScenarioAnalyzer:
             if normalized_context:
                 self.education_context[normalized_context] = self.education_context.get(normalized_context, 0) + 1
 
-            dim = self.normalize_text(context.get("Dimension"))
+            dim = self.normalize_dimension(context.get("Dimension"))
             if dim:
                 self.dimension[dim] = self.dimension.get(dim, 0) + 1
 
