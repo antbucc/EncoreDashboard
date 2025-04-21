@@ -52,6 +52,9 @@ def to_json(data):
 
 def main():
     st.set_page_config(page_title="ENCORE Analytics Dashboard", layout="wide")
+
+    # Add project logo
+    st.image("assets/logo.png", width=120)
     st.title("ENCORE Analytics Dashboard")
 
     keywords, scenarios, paths = fetch_data()
