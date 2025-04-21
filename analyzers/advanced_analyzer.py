@@ -75,16 +75,9 @@ class AdvancedLearningAnalytics:
         axes[1, 0].set_title("Total Time Spent on Assignments")
         axes[1, 0].set_ylabel("Minutes")
 
-        # 4. Most Common Topics
-        if self.topic_distribution:
-            top_topics = self.topic_distribution.most_common(10)
-            labels, values = zip(*top_topics)
-            axes[1, 1].barh(labels, values, color="teal")
-            axes[1, 1].invert_yaxis()
-            axes[1, 1].set_title("Most Frequent Topics in Lessons")
-        else:
-            axes[1, 1].set_title("Most Frequent Topics (no data)")
-            axes[1, 1].axis("off")
+        # 4. (Removed: Topic Chart Placeholder)
+        axes[1, 1].set_title("Topic Chart Removed")
+        axes[1, 1].axis("off")
 
         # 5. Question Types Variety
         if self.question_types:
