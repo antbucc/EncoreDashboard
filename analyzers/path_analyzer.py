@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 class LearningPathAnalyzer:
-    def __init__(self, data):
+    def __init__(self, data, max_activity_types=6):
         self.data = data
+        self.max_activity_types = max_activity_types
         self.type_of_activity = {}
         self.type_of_assignment = {}
         self.topics = {}
@@ -27,34 +28,38 @@ class LearningPathAnalyzer:
                 if topic:
                     self.topics[topic] = self.topics.get(topic, 0) + 1
 
+    def get_top_items(self, data_dict):
+        return dict(sorted(data_dict.items(), key=lambda x: x[1], reverse=True)[:self.max_activity_types])
+
     def create_figure(self):
         self.extract_data()
         fig, axes = plt.subplots(2, 2, figsize=(18, 12))
 
         def plot_pie(ax, data, title):
-            data = {k: v for k, v in data.items() if k}
             if not data:
                 ax.set_title(f"{title} (no data)")
                 ax.axis("off")
                 return
-            labels, values = zip(*sorted(data.items(), key=lambda x: x[1], reverse=True))
+            labels, values = zip(*data.items())
             ax.pie(values, labels=labels, autopct='%1.1f%%', startangle=140)
             ax.set_title(title)
 
         def plot_bar(ax, data, title, xlabel):
-            data = {k: v for k, v in data.items() if k}
             if not data:
                 ax.set_title(f"{title} (no data)")
                 ax.axis("off")
                 return
-            labels, values = zip(*sorted(data.items(), key=lambda x: x[1], reverse=True))
+            labels, values = zip(*data.items())
             ax.barh(labels, values)
             ax.set_title(title)
             ax.set_xlabel(xlabel)
             ax.invert_yaxis()
 
-        plot_pie(axes[0, 0], self.type_of_activity, "Activity Types Distribution")
-        plot_bar(axes[0, 1], self.activity_time, "Total Time by Activity Type", "Minutes")
+        top_activities = self.get_top_items(self.type_of_activity)
+        top_activity_times = {k: self.activity_time[k] for k in top_activities}
+
+        plot_pie(axes[0, 0], top_activities, "Most Common Activity Types")
+        plot_bar(axes[0, 1], top_activity_times, "Total Time by Activity Type", "Minutes")
         plot_bar(axes[1, 0], self.type_of_assignment, "Assignment Types Distribution", "Count")
 
         if self.topics:
