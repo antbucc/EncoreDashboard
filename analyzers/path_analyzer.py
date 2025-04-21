@@ -15,10 +15,10 @@ class LearningPathAnalyzer:
         for doc in self.data:
             lessons = doc.get("Path", {}).get("LessonPlan", [])
             for lesson in lessons:
-                toa = lesson.get("TypeOfActivity")
-                if toa:
-                    self.type_of_activity[toa] = self.type_of_activity.get(toa, 0) + 1
-                    self.activity_time[toa] = self.activity_time.get(toa, 0) + lesson.get("Time", 0)
+                type_of_activity = lesson.get("TypeOfActivity")
+                if type_of_activity:
+                    self.type_of_activity[type_of_activity] = self.type_of_activity.get(type_of_activity, 0) + 1
+                    self.activity_time[type_of_activity] = self.activity_time.get(type_of_activity, 0) + lesson.get("Time", 0)
 
                 assign = lesson.get("TypeOfAssignment")
                 if assign:
