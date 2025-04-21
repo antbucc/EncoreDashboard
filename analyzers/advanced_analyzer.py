@@ -12,7 +12,6 @@ class AdvancedLearningAnalytics:
         self.bloom_levels = defaultdict(int)
         self.assignment_time = {"Learning": 0, "Assessment": 0}
         self.assignment_count = {"Learning": 0, "Assessment": 0}
-        self.oer_usage = Counter()
         self.topic_distribution = Counter()
         self.question_types = Counter()
         self.educator_experience = defaultdict(lambda: defaultdict(int))
@@ -43,10 +42,6 @@ class AdvancedLearningAnalytics:
                 if assign in self.assignment_time:
                     self.assignment_time[assign] += time
                     self.assignment_count[assign] += 1
-
-                oers = lesson.get("Content", {}).get("OERs", [])
-                if oers:
-                    self.oer_usage[lesson.get("Topic", "Unspecified")] += len(oers)
 
                 activity = lesson.get("TypeOfActivity", "").strip().lower()
                 if activity in ["multiple choice", "true or false", "short answer question", "fill in the blanks"]:
@@ -80,14 +75,15 @@ class AdvancedLearningAnalytics:
         axes[1, 0].set_title("Total Time Spent on Assignments")
         axes[1, 0].set_ylabel("Minutes")
 
-        # 4. OER Usage
-        if self.oer_usage:
-            labels, values = zip(*self.oer_usage.most_common(6))
-            axes[1, 1].barh(labels, values, color="purple")
+        # 4. Most Common Topics
+        if self.topic_distribution:
+            top_topics = self.topic_distribution.most_common(10)
+            labels, values = zip(*top_topics)
+            axes[1, 1].barh(labels, values, color="teal")
             axes[1, 1].invert_yaxis()
-            axes[1, 1].set_title("Top Topics by OER Usage")
+            axes[1, 1].set_title("Most Frequent Topics in Lessons")
         else:
-            axes[1, 1].set_title("Top Topics by OER Usage (no data)")
+            axes[1, 1].set_title("Most Frequent Topics (no data)")
             axes[1, 1].axis("off")
 
         # 5. Question Types Variety
