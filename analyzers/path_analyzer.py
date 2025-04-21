@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 class LearningPathAnalyzer:
-    def __init__(self, data, max_activity_types=30):
+    def __init__(self, data, max_activity_types=10):
         self.data = data
         self.max_activity_types = max_activity_types
         self.type_of_activity = {}
@@ -12,14 +12,29 @@ class LearningPathAnalyzer:
         self.activity_time = {}
         self.assignment_category_count = {"Learning": 0, "Assessment": 0}
 
+    def is_valid_label(self, label):
+        if not label or not isinstance(label, str):
+            return False
+        label = label.strip().lower()
+        return (
+            label != "" and
+            label != "[object object]" and
+            label != "assessment" and
+            label != "learning" and
+            not label.startswith("{") and
+            not label.startswith("[")
+        )
+
     def extract_data(self):
         for doc in self.data:
             lessons = doc.get("Path", {}).get("LessonPlan", [])
             for lesson in lessons:
-                activity = lesson.get("TypeOfActivity", "").strip()
-                if activity:
-                    self.type_of_activity[activity] = self.type_of_activity.get(activity, 0) + 1
-                    self.activity_time[activity] = self.activity_time.get(activity, 0) + lesson.get("Time", 0)
+                activity = lesson.get("TypeOfActivity", "")
+                if isinstance(activity, str):
+                    activity = activity.strip()
+                    if self.is_valid_label(activity):
+                        self.type_of_activity[activity] = self.type_of_activity.get(activity, 0) + 1
+                        self.activity_time[activity] = self.activity_time.get(activity, 0) + lesson.get("Time", 0)
 
                 assignment = lesson.get("TypeOfAssignment", "").strip()
                 if assignment:
@@ -58,20 +73,13 @@ class LearningPathAnalyzer:
             ax.set_xlabel(xlabel)
             ax.invert_yaxis()
 
-        # Top N activity types (all combined, regardless of assignment type)
         top_activities = self.get_top_items(self.type_of_activity)
         top_activity_times = {k: self.activity_time[k] for k in top_activities}
 
-        # Chart 1: All unique activity types
         plot_bar(axes[0, 0], top_activities, "Most Common Activity Types", "Count")
-
-        # Chart 2: Aggregated time per activity type
         plot_bar(axes[0, 1], top_activity_times, "Total Time by Activity Type", "Minutes")
-
-        # Chart 3: Learning vs Assessment overview
         plot_pie(axes[1, 0], self.assignment_category_count, "Learning vs Assessment Distribution")
 
-        # Chart 4: Word cloud of topics
         if self.topics:
             wordcloud = WordCloud(width=800, height=400, background_color="white").generate_from_frequencies(self.topics)
             axes[1, 1].imshow(wordcloud, interpolation="bilinear")
