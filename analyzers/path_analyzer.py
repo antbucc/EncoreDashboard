@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 class LearningPathAnalyzer:
-    def __init__(self, data, max_activity_types=10):
+    def __init__(self, data, max_activity_types=100):
         self.data = data
         self.max_activity_types = max_activity_types
         self.type_of_activity = {}
