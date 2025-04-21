@@ -3,19 +3,19 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 class LearningPathAnalyzer:
-    def __init__(self, data, max_activity_types=6):
+    def __init__(self, data, max_activity_types=10):
         self.data = data
         self.max_activity_types = max_activity_types
         self.type_of_activity = {}
         self.type_of_assignment = {}
         self.topics = {}
         self.activity_time = {}
+        self.assignment_category_count = {"Learning": 0, "Assessment": 0}
 
     def extract_data(self):
         for doc in self.data:
             lessons = doc.get("Path", {}).get("LessonPlan", [])
             for lesson in lessons:
-                # Explicit and cleaned extraction of non-empty TypeOfActivity
                 activity = lesson.get("TypeOfActivity", "").strip()
                 if activity:
                     self.type_of_activity[activity] = self.type_of_activity.get(activity, 0) + 1
@@ -24,6 +24,8 @@ class LearningPathAnalyzer:
                 assignment = lesson.get("TypeOfAssignment", "").strip()
                 if assignment:
                     self.type_of_assignment[assignment] = self.type_of_assignment.get(assignment, 0) + 1
+                    if assignment in self.assignment_category_count:
+                        self.assignment_category_count[assignment] += 1
 
                 topic = lesson.get("Topic", "").strip()
                 if topic:
@@ -56,13 +58,20 @@ class LearningPathAnalyzer:
             ax.set_xlabel(xlabel)
             ax.invert_yaxis()
 
+        # Top N activity types (all combined, regardless of assignment type)
         top_activities = self.get_top_items(self.type_of_activity)
         top_activity_times = {k: self.activity_time[k] for k in top_activities}
 
-        plot_pie(axes[0, 0], top_activities, "Most Common Activity Types")
-        plot_bar(axes[0, 1], top_activity_times, "Total Time by Activity Type", "Minutes")
-        plot_bar(axes[1, 0], self.type_of_assignment, "Assignment Types Distribution", "Count")
+        # Chart 1: All unique activity types
+        plot_bar(axes[0, 0], top_activities, "Most Common Activity Types", "Count")
 
+        # Chart 2: Aggregated time per activity type
+        plot_bar(axes[0, 1], top_activity_times, "Total Time by Activity Type", "Minutes")
+
+        # Chart 3: Learning vs Assessment overview
+        plot_pie(axes[1, 0], self.assignment_category_count, "Learning vs Assessment Distribution")
+
+        # Chart 4: Word cloud of topics
         if self.topics:
             wordcloud = WordCloud(width=800, height=400, background_color="white").generate_from_frequencies(self.topics)
             axes[1, 1].imshow(wordcloud, interpolation="bilinear")
