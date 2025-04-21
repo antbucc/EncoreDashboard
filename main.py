@@ -6,6 +6,7 @@ from analyzers.keyword_analyzer import KeywordAnalyzer
 from analyzers.scenario_analyzer import LearningScenarioAnalyzer
 from analyzers.path_analyzer import LearningPathAnalyzer
 from analyzers.global_analyzer import GlobalAnalyzer
+from analyzers.advanced_analyzer import AdvancedLearningAnalytics
 import json
 import csv
 import io
@@ -55,7 +56,7 @@ def main():
 
     keywords, scenarios, paths = fetch_data()
 
-    tab = st.selectbox("Select View", ["Global Summary", "Keyword Analysis", "Learning Scenarios", "Learning Paths"])
+    tab = st.selectbox("Select View", ["Global Summary", "Keyword Analysis", "Learning Scenarios", "Learning Paths", "Advanced Insights"])
 
     if tab == "Global Summary":
         analyzer = GlobalAnalyzer(keywords, scenarios, paths)
@@ -90,6 +91,12 @@ def main():
 
     elif tab == "Learning Paths":
         analyzer = LearningPathAnalyzer(paths)
+        fig = analyzer.create_figure()
+        if fig:
+            st.pyplot(fig)
+
+    elif tab == "Advanced Insights":
+        analyzer = AdvancedLearningAnalytics(paths, scenarios)
         fig = analyzer.create_figure()
         if fig:
             st.pyplot(fig)
