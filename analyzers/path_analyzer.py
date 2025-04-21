@@ -29,23 +29,33 @@ class LearningPathAnalyzer:
 
     def create_figure(self):
         self.extract_data()
-        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        fig, axes = plt.subplots(2, 2, figsize=(18, 12))
 
-        def plot(ax, data, title):
+        def plot_pie(ax, data, title):
             data = {k: v for k, v in data.items() if k}
             if not data:
                 ax.set_title(f"{title} (no data)")
                 ax.axis("off")
                 return
-            items = sorted(data.items(), key=lambda x: x[1], reverse=True)
-            labels, values = zip(*items)
+            labels, values = zip(*sorted(data.items(), key=lambda x: x[1], reverse=True))
+            ax.pie(values, labels=labels, autopct='%1.1f%%', startangle=140)
+            ax.set_title(title)
+
+        def plot_bar(ax, data, title, xlabel):
+            data = {k: v for k, v in data.items() if k}
+            if not data:
+                ax.set_title(f"{title} (no data)")
+                ax.axis("off")
+                return
+            labels, values = zip(*sorted(data.items(), key=lambda x: x[1], reverse=True))
             ax.barh(labels, values)
             ax.set_title(title)
+            ax.set_xlabel(xlabel)
             ax.invert_yaxis()
 
-        plot(axes[0, 0], self.type_of_activity, "Type of Activity")
-        plot(axes[0, 1], self.type_of_assignment, "Type of Assignment")
-        plot(axes[1, 0], self.activity_time, "Total Time by Activity Type")
+        plot_pie(axes[0, 0], self.type_of_activity, "Activity Types Distribution")
+        plot_bar(axes[0, 1], self.activity_time, "Total Time by Activity Type", "Minutes")
+        plot_bar(axes[1, 0], self.type_of_assignment, "Assignment Types Distribution", "Count")
 
         if self.topics:
             wordcloud = WordCloud(width=800, height=400, background_color="white").generate_from_frequencies(self.topics)
