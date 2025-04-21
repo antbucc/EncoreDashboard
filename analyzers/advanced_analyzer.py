@@ -18,6 +18,9 @@ class AdvancedLearningAnalytics:
         self.educator_experience = defaultdict(lambda: defaultdict(int))
         self.path_branching = []
 
+        self.valid_bloom_levels = {"Remember", "Understand", "Apply", "Analyze", "Evaluate", "Create"}
+        self.valid_experience_levels = {"Junior", "Intermediate", "Senior"}
+
     def normalize_text(self, text):
         if not text or not isinstance(text, str):
             return None
@@ -51,11 +54,10 @@ class AdvancedLearningAnalytics:
 
         for scenario in self.scenarios:
             bloom = self.normalize_text(scenario.get("Objective", {}).get("BloomLevel", {}).get("name"))
-            if bloom:
-                self.bloom_levels[bloom] += 1
-
             exp = self.normalize_text(scenario.get("Context", {}).get("EducatorExperience"))
-            if exp and bloom:
+
+            if bloom in self.valid_bloom_levels and exp in self.valid_experience_levels:
+                self.bloom_levels[bloom] += 1
                 self.educator_experience[exp][bloom] += 1
 
     def create_figure(self):
@@ -97,11 +99,11 @@ class AdvancedLearningAnalytics:
             axes[2, 0].set_title("Assessment Question Types (no data)")
             axes[2, 0].axis("off")
 
-        # 6. Educator Experience vs Bloom Level
-        exp_levels = list(self.educator_experience.keys())
-        bloom_keys = list(set(k for d in self.educator_experience.values() for k in d))
-        bloom_keys.sort()
+        # 6. Educator Experience vs Bloom Level (Heatmap)
+        exp_levels = sorted(self.valid_experience_levels)
+        bloom_keys = sorted(self.valid_bloom_levels)
         data = np.array([[self.educator_experience[exp].get(bloom, 0) for bloom in bloom_keys] for exp in exp_levels])
+
         im = axes[2, 1].imshow(data, cmap="Blues", aspect="auto")
         axes[2, 1].set_xticks(range(len(bloom_keys)))
         axes[2, 1].set_yticks(range(len(exp_levels)))
