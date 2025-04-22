@@ -57,15 +57,7 @@ def main():
         "About": "ENCORE is a tool for analyzing educational datasets, supporting educators with insights from learning paths and scenarios. Developed with ❤️ by the ENCORE team."
     })
 
-        # Optional: Hide Streamlit branding footer (for internal/private use only)
-    st.markdown("""
-        <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            .css-164nlkn {display: none;}
-        </style>
-    """, unsafe_allow_html=True)
-
+  
 
     # Add project logo
     st.image("logo.png", width=120)
