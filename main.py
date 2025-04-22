@@ -51,12 +51,12 @@ def to_json(data):
     return json.dumps(data, indent=2, default=str)
 
 def main():
-    st.set_page_config(page_title="ENCORE Analytics Dashboard", layout="wide")
+    st.set_page_config(page_title="ENCORE Analytics Dashboard", page_icon="favicon.png"m layout="wide")
 
     # Add project logo
     st.image("logo.png", width=120)
     st.title("ENCORE Analytics Dashboard")
-
+    
     keywords, scenarios, paths = fetch_data()
 
     tab = st.selectbox("Select View", ["Global Summary", "Keyword Analysis", "Learning Scenarios", "Learning Paths", "Advanced Insights"])
