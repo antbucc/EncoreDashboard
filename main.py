@@ -51,7 +51,11 @@ def to_json(data):
     return json.dumps(data, indent=2, default=str)
 
 def main():
-    st.set_page_config(page_title="ENCORE Analytics Dashboard", page_icon="favicon.png", layout="wide")
+    st.set_page_config(page_title="ENCORE Analytics Dashboard", page_icon="favicon.png", layout="wide",menu_items={
+        "Get Help": "https://github.com/antbucc/EncoreDashboard",
+        "Report a Bug": "https://github.com/antbucc/EncoreDashboard/issues",
+        "About": "ENCORE is a tool for analyzing educational datasets, supporting educators with insights from learning paths and scenarios. Developed with ❤️ by the ENCORE team."
+    })
 
     # Add project logo
     st.image("logo.png", width=120)
